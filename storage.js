@@ -1,5 +1,28 @@
 (function () {
-  const { STORAGE_KEYS, AVATARS, MISSION_DEFS } = window.AppData;
+  const { STORAGE_KEYS, AVATARS, MISSION_DEFS, BOOKS, MODES } = window.AppData;
+
+  function todayKey() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function defaultSession() {
+    return {
+      active: false,
+      bookId: BOOKS[0].id,
+      mode: MODES[1].id,
+      problems: [],
+      currentIndex: 0,
+      solved: 0,
+      correct: 0,
+      incorrect: 0,
+      scoreGained: 0,
+      bestStreak: 0,
+      streak: 0,
+      rewards: [],
+      speedLeft: 0,
+      stars: 0,
+    };
+  }
 
   function createChild(name, avatar, override = {}) {
     return {
@@ -15,118 +38,146 @@
     };
   }
 
-  function todayKey() {
-    return new Date().toISOString().slice(0, 10);
-  }
-
   function makeDefaultState() {
     const children = [
       createChild("하늘", "🐰", { totalScore: 40, solvedCount: 8, correctCount: 6, bestStreak: 3, streak: 1 }),
-      createChild("민지", "🐻", { totalScore: 35, solvedCount: 7, correctCount: 5, bestStreak: 2, streak: 0 }),
+      createChild("민지", "🐻", { totalScore: 35, solvedCount: 7, correctCount: 5, bestStreak: 2 }),
       createChild("도윤", "🐥", { totalScore: 52, solvedCount: 9, correctCount: 7, bestStreak: 4, streak: 2 }),
     ];
-
-    const selectedChildId = children[0].id;
     return {
-      version: 3,
+      version: 4,
       children,
-      selectedChildId,
+      selectedChildId: children[0].id,
+      selectedBookId: BOOKS[0].id,
+      selectedMode: "challenge",
       gameHistory: [],
       currentSession: defaultSession(),
-      settings: { autoNext: false, randomMode: true },
-      ui: { currentView: "home", isPlaying: false, replayCount: 0, childManagerOpen: false },
+      settings: {
+        autoNext: false,
+        voiceRate: 0.9,
+        effects: true,
+        defaultPlayerId: children[0].id,
+      },
+      ui: {
+        currentView: "home",
+        isPlaying: false,
+        replayCount: 0,
+        childManagerOpen: false,
+      },
       achievements: {},
-      missions: { date: todayKey(), items: MISSION_DEFS.map((m) => ({ id: m.id, progress: 0, completed: false })) },
+      missions: {
+        date: todayKey(),
+        items: MISSION_DEFS.map((m) => ({ id: m.id, progress: 0, completed: false })),
+      },
       childLevels: {},
       recentSessions: [],
       unlockedBadges: {},
+      weakWords: {},
       reviewWords: {},
+      reports: { updatedAt: null },
+      unlockedBooks: BOOKS.map((b) => b.id),
     };
   }
 
-  function defaultSession() {
-    return {
-      active: false,
-      questionIds: [],
-      currentIndex: 0,
-      solved: 0,
-      correct: 0,
-      incorrect: 0,
-      scoreGained: 0,
-      bestStreak: 0,
-      streak: 0,
-      rewards: [],
+  function normalize(s) {
+    const base = makeDefaultState();
+    const out = {
+      ...base,
+      ...s,
+      currentSession: { ...base.currentSession, ...(s.currentSession || {}) },
+      settings: { ...base.settings, ...(s.settings || {}) },
+      ui: { ...base.ui, ...(s.ui || {}) },
+      missions: s.missions || base.missions,
+      recentSessions: Array.isArray(s.recentSessions) ? s.recentSessions : [],
+      children: Array.isArray(s.children) && s.children.length ? s.children : base.children,
+      unlockedBooks: Array.isArray(s.unlockedBooks) && s.unlockedBooks.length ? s.unlockedBooks : base.unlockedBooks,
     };
+
+    out.children = out.children.map((c) => ({ ...createChild(c.name || "친구", c.avatar || AVATARS[0]), ...c }));
+    if (!out.selectedChildId) out.selectedChildId = out.settings.defaultPlayerId || out.children[0]?.id;
+    if (!out.selectedBookId) out.selectedBookId = BOOKS[0].id;
+    if (!out.selectedMode) out.selectedMode = "challenge";
+
+    if (!out.missions.date || out.missions.date !== todayKey()) {
+      out.missions = {
+        date: todayKey(),
+        items: MISSION_DEFS.map((m) => ({ id: m.id, progress: 0, completed: false })),
+      };
+    }
+
+    return out;
+  }
+
+  function migrateFromV3(v3) {
+    const s = makeDefaultState();
+    s.children = v3.children || s.children;
+    s.selectedChildId = v3.selectedChildId || s.selectedChildId;
+    s.gameHistory = v3.gameHistory || [];
+    s.currentSession = { ...s.currentSession, ...(v3.currentSession || {}) };
+    s.settings = { ...s.settings, ...(v3.settings || {}) };
+    s.ui = { ...s.ui, ...(v3.ui || {}), currentView: "home" };
+    s.achievements = v3.achievements || {};
+    s.missions = v3.missions || s.missions;
+    s.childLevels = v3.childLevels || {};
+    s.recentSessions = v3.recentSessions || [];
+    s.unlockedBadges = v3.unlockedBadges || {};
+    s.reviewWords = v3.reviewWords || {};
+    s.weakWords = v3.reviewWords || {};
+    s.selectedBookId = BOOKS[0].id;
+    s.selectedMode = "challenge";
+    return normalize(s);
   }
 
   function migrateFromV2(v2) {
-    const state = makeDefaultState();
-    state.children = (v2.children || state.children).map((c) => ({
-      ...createChild(c.name || "친구", c.avatar || AVATARS[0]),
-      ...c,
-    }));
-    state.selectedChildId = v2.selectedChildId || state.children[0]?.id || null;
-    state.gameHistory = Array.isArray(v2.gameHistory) ? v2.gameHistory : [];
-    state.currentSession = { ...defaultSession(), ...(v2.currentSession || {}) };
-    state.settings = { ...state.settings, ...(v2.settings || {}) };
-    state.ui = { ...state.ui, ...(v2.ui || {}), currentView: "home" };
-    return normalize(state);
-  }
-
-  function normalize(input) {
-    const base = makeDefaultState();
-    const state = {
-      ...base,
-      ...input,
-      currentSession: { ...defaultSession(), ...(input.currentSession || {}) },
-      settings: { ...base.settings, ...(input.settings || {}) },
-      ui: { ...base.ui, ...(input.ui || {}) },
-      missions: input.missions || base.missions,
-      achievements: input.achievements || {},
-      childLevels: input.childLevels || {},
-      recentSessions: Array.isArray(input.recentSessions) ? input.recentSessions : [],
-      unlockedBadges: input.unlockedBadges || {},
-      reviewWords: input.reviewWords || {},
-    };
-
-    state.children = (state.children || base.children).map((c) => ({
-      ...createChild(c.name || "친구", c.avatar || AVATARS[0]),
-      ...c,
-    }));
-
-    if (!state.selectedChildId && state.children[0]) state.selectedChildId = state.children[0].id;
-
-    if (!state.missions.date || state.missions.date !== todayKey()) {
-      state.missions = { date: todayKey(), items: MISSION_DEFS.map((m) => ({ id: m.id, progress: 0, completed: false })) };
-    }
-
-    return state;
+    const s = makeDefaultState();
+    s.children = v2.children || s.children;
+    s.selectedChildId = v2.selectedChildId || s.selectedChildId;
+    s.gameHistory = v2.gameHistory || [];
+    s.settings = { ...s.settings, ...(v2.settings || {}) };
+    s.ui = { ...s.ui, ...(v2.ui || {}), currentView: "home" };
+    return normalize(s);
   }
 
   function loadState() {
     try {
-      const rawV3 = localStorage.getItem(STORAGE_KEYS.v3);
-      if (rawV3) return normalize(JSON.parse(rawV3));
+      const raw4 = localStorage.getItem(STORAGE_KEYS.v4);
+      if (raw4) return normalize(JSON.parse(raw4));
 
-      const rawV2 = localStorage.getItem(STORAGE_KEYS.v2);
-      if (rawV2) {
-        const migrated = migrateFromV2(JSON.parse(rawV2));
-        saveState(migrated);
-        return migrated;
+      const raw3 = localStorage.getItem(STORAGE_KEYS.v3);
+      if (raw3) {
+        const migrated3 = migrateFromV3(JSON.parse(raw3));
+        saveState(migrated3);
+        return migrated3;
+      }
+
+      const raw2 = localStorage.getItem(STORAGE_KEYS.v2);
+      if (raw2) {
+        const migrated2 = migrateFromV2(JSON.parse(raw2));
+        saveState(migrated2);
+        return migrated2;
       }
 
       const fresh = makeDefaultState();
       saveState(fresh);
       return fresh;
     } catch (e) {
-      console.warn("저장 데이터 로드 실패, 기본값 사용", e);
+      console.warn("storage load failed", e);
       return makeDefaultState();
     }
   }
 
   function saveState(state) {
-    localStorage.setItem(STORAGE_KEYS.v3, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEYS.v4, JSON.stringify(state));
   }
 
-  window.AppStorage = { loadState, saveState, defaultSession, todayKey };
+  function resetAll() {
+    localStorage.removeItem(STORAGE_KEYS.v4);
+    localStorage.removeItem(STORAGE_KEYS.v3);
+    localStorage.removeItem(STORAGE_KEYS.v2);
+    const fresh = makeDefaultState();
+    saveState(fresh);
+    return fresh;
+  }
+
+  window.AppStorage = { loadState, saveState, defaultSession, todayKey, resetAll };
 })();
