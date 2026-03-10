@@ -490,6 +490,7 @@ function renderSessionProgress() {
   const percent = Math.min(Math.round((solved / SESSION_TARGET) * 100), 100);
   $.sessionProgressText.textContent = `오늘 진행 ${solved} / ${SESSION_TARGET}`;
   $.sessionProgressFill.style.width = `${percent}%`;
+  $.sessionProgressFill.parentElement.setAttribute("aria-valuenow", String(percent));
 }
 
 function loadState() {
