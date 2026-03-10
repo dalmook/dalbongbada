@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>아이들을 위한 받아쓰기 놀이터</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar card">
+        <div>
+          <p class="eyebrow">🎮 듣고 쓰는 미션 게임</p>
+          <h1>받아쓰기 놀이터</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="nav-btn" data-view="home">홈</button>
+          <button class="nav-btn" data-view="ranking">랭킹</button>
+          <button class="nav-btn" data-view="achievements">업적</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="view-home" class="view card">
+          <div class="hero-block">
+            <div>
+              <p class="hero-title">오늘의 챔피언 👑</p>
+              <p id="home-champion" class="hero-value">-</p>
+            </div>
+            <button id="start-session-btn" class="btn btn-primary">시작하기</button>
+          </div>
+
+          <div class="home-grid">
+            <article class="mini-card player-focus">
+              <h2>현재 플레이어</h2>
+              <p id="home-selected-child">-</p>
+              <p id="home-selected-level" class="subline">-</p>
+              <div class="meter-wrap">
+                <div id="home-level-fill" class="meter-fill"></div>
+              </div>
+              <button id="change-child-btn" class="btn btn-soft">친구 선택/추가</button>
+            </article>
+
+            <article class="mini-card mission-focus">
+              <h2>오늘의 미션</h2>
+              <ul id="mission-list" class="list"></ul>
+            </article>
+
+            <article class="mini-card summary-focus">
+              <h2>최근 성과</h2>
+              <ul id="home-recent-summary" class="list"></ul>
+            </article>
+          </div>
+
+          <section id="child-manager" class="child-manager hidden">
+            <div class="section-row">
+              <h3>친구 관리</h3>
+              <button id="close-child-manager" class="btn btn-soft">닫기</button>
+            </div>
+            <div id="child-list" class="child-list"></div>
+            <button id="add-child-btn" class="btn btn-soft">+ 친구 추가</button>
+          </section>
+        </section>
+
+        <section id="view-play" class="view card hidden">
+          <div class="play-hud">
+            <p id="play-progress">1 / 10</p>
+            <p id="play-score">세션 점수 0점</p>
+            <p id="play-streak">연속 0회</p>
+            <p id="play-remaining">남은 문제 10</p>
+          </div>
+          <div class="meter-wrap">
+            <div id="play-progress-fill" class="meter-fill"></div>
+          </div>
+
+          <div class="question-card">
+            <p id="play-category" class="badge">카테고리</p>
+            <p id="play-difficulty" class="badge">난이도</p>
+            <p id="play-status" class="status-text">문제를 들어보세요</p>
+            <p id="play-replay" class="subline">다시 듣기 0/2</p>
+
+            <div class="play-controls">
+              <button id="play-btn" class="btn btn-play">문제 불러줘</button>
+              <button id="replay-btn" class="btn btn-soft">한 번 더!</button>
+            </div>
+
+            <input id="answer-input" type="text" maxlength="20" placeholder="들은 단어를 입력해요" />
+            <div class="answer-actions">
+              <button id="submit-btn" class="btn btn-yellow">제출하기</button>
+              <button id="skip-next-btn" class="btn btn-soft">다음 문제</button>
+            </div>
+            <label class="toggle-row"><input id="auto-next-toggle" type="checkbox" /> 정답 후 자동으로 다음 문제</label>
+
+            <div id="feedback-box" class="feedback-box">
+              <p id="feedback-main">준비되면 재생 버튼을 눌러봐!</p>
+              <p id="feedback-sub"></p>
+              <div id="sparkles" class="sparkles"></div>
+            </div>
+          </div>
+
+          <button class="btn btn-soft" data-view="home">홈으로</button>
+        </section>
+
+        <section id="view-result" class="view card hidden">
+          <h2>🎉 세션 결과</h2>
+          <p id="result-player" class="hero-value">-</p>
+          <ul id="result-stats" class="list"></ul>
+          <p id="result-praise" class="status-text"></p>
+          <div id="result-rewards" class="result-rewards"></div>
+          <div class="result-actions">
+            <button id="result-retry-btn" class="btn btn-primary">다시 하기</button>
+            <button class="btn btn-soft" data-view="home">홈으로</button>
+            <button class="btn btn-soft" data-view="ranking">랭킹 보기</button>
+          </div>
+        </section>
+
+        <section id="view-ranking" class="view card hidden">
+          <h2>🏆 친구 리더보드</h2>
+          <ol id="ranking-list" class="ranking-list"></ol>
+          <h3>최근 플레이 기록</h3>
+          <ul id="recent-session-list" class="list"></ul>
+          <h3>오답 복습 단어</h3>
+          <ul id="review-word-list" class="list"></ul>
+        </section>
+
+        <section id="view-achievements" class="view card hidden">
+          <h2>📚 스티커북/업적 도감</h2>
+          <p id="achievement-owner" class="subline">-</p>
+          <div id="achievement-grid" class="achievement-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <template id="child-item-template">
+      <button class="child-item" type="button">
+        <span class="avatar"></span>
+        <div>
+          <p class="name"></p>
+          <p class="meta"></p>
+        </div>
+      </button>
+    </template>
+
+    <script src="data.js"></script>
+    <script src="storage.js"></script>
+    <script src="game.js"></script>
+    <script src="ui.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
