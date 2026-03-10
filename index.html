@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>받아쓰기 놀이터</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="header card">
+        <p class="eyebrow">오늘도 반짝반짝 ✨</p>
+        <h1>받아쓰기 놀이터</h1>
+        <p class="subtitle">듣고, 쓰고, 칭찬 스티커 받자!</p>
+      </header>
+
+      <main class="layout-grid">
+        <section class="card kids-panel" aria-labelledby="kids-title">
+          <div class="section-title-row">
+            <h2 id="kids-title">👧 친구 선택</h2>
+            <button id="add-kid-btn" class="btn btn-soft" type="button">+ 친구 추가</button>
+          </div>
+          <ul id="kids-list" class="kids-list" aria-live="polite"></ul>
+        </section>
+
+        <section class="card question-panel" aria-labelledby="question-title">
+          <h2 id="question-title">🎧 받아쓰기 문제</h2>
+          <div class="progress-row">
+            <span id="question-progress">1 / 5</span>
+            <span id="play-count">다시 듣기 0/2</span>
+          </div>
+
+          <p id="play-status" class="play-status">문제를 들어보세요</p>
+
+          <div class="play-area">
+            <button id="main-play-btn" class="btn btn-play" type="button">문제 불러줘</button>
+            <button id="replay-btn" class="btn btn-replay" type="button">한 번 더!</button>
+          </div>
+
+          <div class="input-area">
+            <label for="dictation-input">들은 단어를 써볼까?</label>
+            <input
+              id="dictation-input"
+              type="text"
+              placeholder="여기에 써보세요"
+              autocomplete="off"
+              maxlength="20"
+            />
+            <button id="submit-answer-btn" class="btn btn-submit" type="button">제출하기</button>
+            <p id="answer-feedback" class="feedback" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section class="card summary-panel" aria-labelledby="summary-title">
+          <h2 id="summary-title">🏆 오늘의 요약</h2>
+          <div class="summary-cards">
+            <article class="mini-card mint">
+              <p class="mini-title">오늘 점수</p>
+              <p id="score-value" class="mini-value">0점</p>
+            </article>
+            <article class="mini-card pink">
+              <p class="mini-title">연속 정답</p>
+              <p id="streak-value" class="mini-value">0회</p>
+            </article>
+          </div>
+
+          <div class="ranking-block">
+            <h3>친구 랭킹</h3>
+            <ol id="ranking-list" class="ranking-list"></ol>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="kid-item-template">
+      <li>
+        <button class="kid-chip" type="button"></button>
+      </li>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
