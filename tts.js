@@ -1,8 +1,14 @@
 (function () {
   let voices = [];
+  let currentUtter = null;
+
+  function supported() {
+    return Boolean(window.speechSynthesis && typeof SpeechSynthesisUtterance !== "undefined");
+  }
 
   function loadVoices() {
-    voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    if (!supported()) return [];
+    voices = window.speechSynthesis.getVoices() || [];
     return voices;
   }
 
@@ -11,41 +17,50 @@
     return voices.find((v) => (v.lang || "").toLowerCase().startsWith("ko")) || voices[0] || null;
   }
 
+  function stop() {
+    if (supported()) window.speechSynthesis.cancel();
+    currentUtter = null;
+  }
+
   function speak(text, options = {}) {
     const { rate = 0.9, onStart, onEnd, onError, fallbackMs = 2000 } = options;
-    const synth = window.speechSynthesis;
 
-    if (!synth || typeof SpeechSynthesisUtterance === "undefined") {
-      if (onStart) onStart();
-      setTimeout(() => onEnd && onEnd({ fallback: true }), fallbackMs);
-      return { cancel: () => {} };
+    stop();
+
+    if (!supported()) {
+      onStart && onStart();
+      const t = setTimeout(() => onEnd && onEnd({ fallback: true }), fallbackMs);
+      return { cancel: () => clearTimeout(t) };
     }
 
-    synth.cancel();
     const utter = new SpeechSynthesisUtterance(text);
+    currentUtter = utter;
     utter.rate = rate;
     utter.lang = "ko-KR";
     const voice = pickKoreanVoice();
     if (voice) utter.voice = voice;
 
     utter.onstart = () => onStart && onStart();
-    utter.onend = () => onEnd && onEnd({ fallback: false });
+    utter.onend = () => {
+      if (currentUtter !== utter) return;
+      currentUtter = null;
+      onEnd && onEnd({ fallback: false });
+    };
     utter.onerror = () => {
-      if (onError) onError();
-      if (onStart) onStart();
+      currentUtter = null;
+      onError && onError();
+      onStart && onStart();
       setTimeout(() => onEnd && onEnd({ fallback: true }), fallbackMs);
     };
 
-    synth.speak(utter);
-    return {
-      cancel: () => synth.cancel(),
-    };
+    window.speechSynthesis.speak(utter);
+    return { cancel: stop };
   }
 
-  if (window.speechSynthesis) {
+  if (supported()) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }
 
-  window.AppTTS = { speak, loadVoices };
+  window.AppTTS = { supported, loadVoices, speak, stop };
 })();

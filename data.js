@@ -1,5 +1,6 @@
 window.AppData = {
   STORAGE_KEYS: {
+    v5: "dictationPlayground_v5",
     v4: "dictationPlayground_v4",
     v3: "dictationPlayground_v3",
     v2: "dictationPlayground_v2",
@@ -10,22 +11,27 @@ window.AppData = {
     streak5Bonus: 5,
     replayPenalty: [0, 1, 2],
   },
+  XP_RULES: {
+    correct: 8,
+    completeSession: 10,
+  },
   MAX_REPLAY: 2,
   SESSION_SIZE: 10,
   SPEED_LIMIT_SEC: 8,
   AVATARS: ["🐰", "🐻", "🐥", "🐱", "🦊", "🐼"],
   LEVELS: [
-    { score: 0, title: "🌱 새싹" },
-    { score: 80, title: "✨ 반짝" },
-    { score: 180, title: "⭐ 별님" },
-    { score: 320, title: "🌈 무지개" },
+    { score: 0, title: "🌱 새싹 탐험가" },
+    { score: 80, title: "✨ 반짝 마스터" },
+    { score: 180, title: "⭐ 별님 리더" },
+    { score: 320, title: "🏆 받아쓰기 챔피언" },
   ],
   BOOKS: [
     {
       id: "basic",
       title: "기초 단어",
-      description: "가장 쉬운 단어로 시작해요",
+      description: "짧고 쉬운 단어로 시작해요",
       icon: "🔤",
+      recommended: "유아~초1",
       problems: [
         { id: "b1", type: "word", word: "나무", category: "기초", difficulty: 1 },
         { id: "b2", type: "word", word: "바다", category: "기초", difficulty: 1 },
@@ -36,8 +42,9 @@ window.AppData = {
     {
       id: "animal",
       title: "동물 친구",
-      description: "귀여운 동물 단어 모음",
+      description: "귀여운 동물 이름을 배워요",
       icon: "🐶",
+      recommended: "초1~초2",
       problems: [
         { id: "a1", type: "word", word: "강아지", category: "동물", difficulty: 1 },
         { id: "a2", type: "word", word: "토끼", category: "동물", difficulty: 1 },
@@ -48,45 +55,55 @@ window.AppData = {
     {
       id: "school",
       title: "학교 생활",
-      description: "교실에서 자주 만나는 단어",
+      description: "교실에서 자주 보는 단어",
       icon: "🏫",
+      recommended: "초1~초3",
       problems: [
         { id: "s1", type: "word", word: "학교", category: "학교", difficulty: 1 },
         { id: "s2", type: "word", word: "연필", category: "학교", difficulty: 1 },
         { id: "s3", type: "word", word: "도서관", category: "학교", difficulty: 2 },
-        { id: "s4", type: "word", word: "칠판", category: "학교", difficulty: 1 },
+        { id: "s4", type: "sentence", word: "친구와 함께 책을 읽어요", category: "학교", difficulty: 2 },
       ],
     },
     {
       id: "nature",
       title: "자연/계절",
-      description: "자연과 계절 느낌 단어",
+      description: "계절과 자연 느낌을 익혀요",
       icon: "🌿",
+      recommended: "초1~초3",
       problems: [
         { id: "n1", type: "word", word: "무지개", category: "자연", difficulty: 2 },
         { id: "n2", type: "word", word: "별빛", category: "자연", difficulty: 1 },
         { id: "n3", type: "word", word: "달님", category: "자연", difficulty: 2 },
-        { id: "n4", type: "word", word: "소풍", category: "계절", difficulty: 1 },
+        { id: "n4", type: "sentence", word: "봄바람이 살랑살랑 불어요", category: "계절", difficulty: 2 },
       ],
     },
   ],
   MODES: [
-    { id: "free", name: "자유 연습", description: "점수 부담 없이 연습", icon: "🧸" },
-    { id: "challenge", name: "챌린지", description: "점수/업적 반영", icon: "🔥" },
-    { id: "speed", name: "스피드", description: "제한시간 안에 입력", icon: "⏱️" },
+    { id: "free", name: "자유 연습", description: "감점 없이 편하게 연습", icon: "🧸" },
+    { id: "challenge", name: "챌린지", description: "점수/연속/업적 반영", icon: "🔥" },
+    { id: "speed", name: "스피드", description: "시간 안에 정답 도전", icon: "⏱️" },
   ],
   ACHIEVEMENTS: [
     { id: "first_correct", name: "첫 정답", desc: "처음 정답 맞히기" },
-    { id: "streak3", name: "3연속 성공", desc: "3연속 정답" },
+    { id: "streak3", name: "3연속 성공", desc: "연속 정답 3회" },
     { id: "solve10", name: "10문제 돌파", desc: "누적 10문제" },
     { id: "accuracy80", name: "정답률 장인", desc: "정답률 80% 이상" },
     { id: "no_replay", name: "집중의 달인", desc: "다시듣기 없이 정답" },
     { id: "champion", name: "오늘의 챔피언", desc: "랭킹 1위" },
   ],
-  MISSION_DEFS: [
-    { id: "mission_streak3", text: "3문제 연속 정답", target: 3, type: "streak" },
-    { id: "mission_solve5", text: "오늘 5문제 풀기", target: 5, type: "solvedToday" },
-    { id: "mission_no_replay2", text: "다시듣기 없이 2문제 정답", target: 2, type: "noReplayCorrectToday" },
+  DAILY_QUESTS: [
+    { id: "d_solve5", text: "오늘 5문제 풀기", target: 5, type: "solvedToday" },
+    { id: "d_streak3", text: "3연속 성공", target: 3, type: "streak" },
+    { id: "d_review3", text: "복습 모드 3문제 완료", target: 3, type: "reviewSolved" },
   ],
-  PRAISE: ["정말 멋진 집중력이야!", "오늘도 반짝반짝 성장 중!", "차근차근 도전하는 모습이 최고야!"],
+  WEEKLY_QUESTS: [
+    { id: "w_solve25", text: "이번 주 25문제 풀기", target: 25, type: "solvedWeek" },
+    { id: "w_correct20", text: "이번 주 20문제 정답", target: 20, type: "correctWeek" },
+  ],
+  PRAISE: [
+    "정말 멋진 집중력이야!",
+    "오늘도 반짝반짝 성장 중!",
+    "차근차근 도전하는 모습이 최고야!",
+  ],
 };
