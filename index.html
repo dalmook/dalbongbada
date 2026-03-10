@@ -8,132 +8,145 @@
   </head>
   <body>
     <div class="app-shell">
-      <header class="card header">
-        <p class="eyebrow">🌈 오늘도 즐겁게!</p>
-        <h1>받아쓰기 놀이터</h1>
-        <p class="subtitle">듣기 → 쓰기 → 칭찬 받기!</p>
+      <header class="topbar card">
+        <div>
+          <p class="eyebrow">🎮 듣고 쓰는 미션 게임</p>
+          <h1>받아쓰기 놀이터</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="nav-btn" data-view="home">홈</button>
+          <button class="nav-btn" data-view="ranking">랭킹</button>
+          <button class="nav-btn" data-view="achievements">업적</button>
+        </div>
       </header>
 
-      <section class="card top-banner-grid" aria-label="오늘의 배너 영역">
-        <article class="champion-card">
-          <p class="banner-title">👑 오늘의 챔피언</p>
-          <p id="champion-text" class="banner-value">-</p>
-        </article>
-        <article class="quote-card">
-          <p class="banner-title">💬 오늘의 한마디</p>
-          <p id="daily-quote" class="banner-value">-</p>
-        </article>
-        <article id="record-banner" class="record-banner hidden" aria-live="polite"></article>
-      </section>
-
-      <main class="layout-grid">
-        <section class="card kids-panel" aria-labelledby="kids-title">
-          <div class="section-title-row">
-            <h2 id="kids-title">🧒 친구 프로필</h2>
-            <button id="add-child-btn" class="btn btn-soft" type="button">+ 친구 추가</button>
+      <main>
+        <section id="view-home" class="view card">
+          <div class="hero-block">
+            <div>
+              <p class="hero-title">오늘의 챔피언 👑</p>
+              <p id="home-champion" class="hero-value">-</p>
+            </div>
+            <button id="start-session-btn" class="btn btn-primary">시작하기</button>
           </div>
-          <div id="children-list" class="children-list" aria-live="polite"></div>
+
+          <div class="home-grid">
+            <article class="mini-card player-focus">
+              <h2>현재 플레이어</h2>
+              <p id="home-selected-child">-</p>
+              <p id="home-selected-level" class="subline">-</p>
+              <div class="meter-wrap">
+                <div id="home-level-fill" class="meter-fill"></div>
+              </div>
+              <button id="change-child-btn" class="btn btn-soft">친구 선택/추가</button>
+            </article>
+
+            <article class="mini-card mission-focus">
+              <h2>오늘의 미션</h2>
+              <ul id="mission-list" class="list"></ul>
+            </article>
+
+            <article class="mini-card summary-focus">
+              <h2>최근 성과</h2>
+              <ul id="home-recent-summary" class="list"></ul>
+            </article>
+          </div>
+
+          <section id="child-manager" class="child-manager hidden">
+            <div class="section-row">
+              <h3>친구 관리</h3>
+              <button id="close-child-manager" class="btn btn-soft">닫기</button>
+            </div>
+            <div id="child-list" class="child-list"></div>
+            <button id="add-child-btn" class="btn btn-soft">+ 친구 추가</button>
+          </section>
         </section>
 
-        <section class="card game-panel" aria-labelledby="game-title">
-          <h2 id="game-title">🎧 받아쓰기 게임</h2>
-
-          <div class="question-meta">
-            <span id="question-progress">1 / 10</span>
-            <span id="question-category">카테고리: 자연</span>
-            <span id="question-difficulty">난이도: ⭐</span>
+        <section id="view-play" class="view card hidden">
+          <div class="play-hud">
+            <p id="play-progress">1 / 10</p>
+            <p id="play-score">세션 점수 0점</p>
+            <p id="play-streak">연속 0회</p>
+            <p id="play-remaining">남은 문제 10</p>
+          </div>
+          <div class="meter-wrap">
+            <div id="play-progress-fill" class="meter-fill"></div>
           </div>
 
-          <div class="progress-block">
-            <div class="progress-label-row">
-              <span id="session-progress-text">오늘 진행 0 / 10</span>
-              <span id="replay-count">다시 듣기 0/2</span>
+          <div class="question-card">
+            <p id="play-category" class="badge">카테고리</p>
+            <p id="play-difficulty" class="badge">난이도</p>
+            <p id="play-status" class="status-text">문제를 들어보세요</p>
+            <p id="play-replay" class="subline">다시 듣기 0/2</p>
+
+            <div class="play-controls">
+              <button id="play-btn" class="btn btn-play">문제 불러줘</button>
+              <button id="replay-btn" class="btn btn-soft">한 번 더!</button>
             </div>
-            <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-              <div id="session-progress-fill" class="progress-bar-fill"></div>
+
+            <input id="answer-input" type="text" maxlength="20" placeholder="들은 단어를 입력해요" />
+            <div class="answer-actions">
+              <button id="submit-btn" class="btn btn-yellow">제출하기</button>
+              <button id="skip-next-btn" class="btn btn-soft">다음 문제</button>
+            </div>
+            <label class="toggle-row"><input id="auto-next-toggle" type="checkbox" /> 정답 후 자동으로 다음 문제</label>
+
+            <div id="feedback-box" class="feedback-box">
+              <p id="feedback-main">준비되면 재생 버튼을 눌러봐!</p>
+              <p id="feedback-sub"></p>
+              <div id="sparkles" class="sparkles"></div>
             </div>
           </div>
 
-          <p id="play-status" class="play-status">문제를 들어보세요</p>
+          <button class="btn btn-soft" data-view="home">홈으로</button>
+        </section>
 
-          <div class="play-controls">
-            <button id="play-btn" class="btn btn-play" type="button">문제 불러줘</button>
-            <button id="replay-btn" class="btn btn-replay" type="button">한 번 더!</button>
-          </div>
-
-          <div class="answer-section">
-            <label for="answer-input">들은 단어를 써볼까?</label>
-            <input id="answer-input" type="text" maxlength="20" autocomplete="off" placeholder="단어를 입력해요" />
-
-            <div class="answer-buttons">
-              <button id="submit-btn" class="btn btn-submit" type="button">제출하기</button>
-              <button id="next-btn" class="btn btn-next" type="button">다음 문제</button>
-            </div>
-
-            <label class="toggle-row" for="auto-next-toggle">
-              <input id="auto-next-toggle" type="checkbox" />
-              정답 확인 후 자동으로 다음 문제로 이동
-            </label>
-
-            <div id="feedback-box" class="feedback-box" aria-live="polite">
-              <p id="feedback-main" class="feedback-main">준비되면 문제를 재생해보자!</p>
-              <p id="feedback-sub" class="feedback-sub"></p>
-              <div id="sparkles" class="sparkles" aria-hidden="true"></div>
-            </div>
-            <p id="streak-banner" class="streak-banner hidden" aria-live="polite"></p>
+        <section id="view-result" class="view card hidden">
+          <h2>🎉 세션 결과</h2>
+          <p id="result-player" class="hero-value">-</p>
+          <ul id="result-stats" class="list"></ul>
+          <p id="result-praise" class="status-text"></p>
+          <div id="result-rewards" class="result-rewards"></div>
+          <div class="result-actions">
+            <button id="result-retry-btn" class="btn btn-primary">다시 하기</button>
+            <button class="btn btn-soft" data-view="home">홈으로</button>
+            <button class="btn btn-soft" data-view="ranking">랭킹 보기</button>
           </div>
         </section>
 
-        <section class="card side-panel" aria-labelledby="summary-title">
-          <h2 id="summary-title">🏅 오늘의 요약</h2>
-          <div class="summary-grid">
-            <article class="mini-card mint">
-              <p class="mini-title">누적 점수</p>
-              <p id="score-value" class="mini-value">0점</p>
-            </article>
-            <article class="mini-card pink">
-              <p class="mini-title">현재 연속 정답</p>
-              <p id="streak-value" class="mini-value">0회</p>
-            </article>
-            <article class="mini-card sky">
-              <p class="mini-title">오늘 맞은 개수</p>
-              <p id="today-correct-value" class="mini-value">0개</p>
-            </article>
-            <article class="mini-card yellow">
-              <p class="mini-title">정답률</p>
-              <p id="accuracy-value" class="mini-value">0%</p>
-            </article>
-          </div>
+        <section id="view-ranking" class="view card hidden">
+          <h2>🏆 친구 리더보드</h2>
+          <ol id="ranking-list" class="ranking-list"></ol>
+          <h3>최근 플레이 기록</h3>
+          <ul id="recent-session-list" class="list"></ul>
+          <h3>오답 복습 단어</h3>
+          <ul id="review-word-list" class="list"></ul>
+        </section>
 
-          <div class="leaderboard-wrap">
-            <h3>친구 랭킹</h3>
-            <ol id="leaderboard-list" class="leaderboard-list"></ol>
-          </div>
+        <section id="view-achievements" class="view card hidden">
+          <h2>📚 스티커북/업적 도감</h2>
+          <p id="achievement-owner" class="subline">-</p>
+          <div id="achievement-grid" class="achievement-grid"></div>
         </section>
       </main>
-
-      <section id="session-result" class="card session-result hidden" aria-live="polite">
-        <h2>🎉 오늘 세션 완료!</h2>
-        <p id="session-result-summary">-</p>
-        <button id="restart-session-btn" class="btn btn-soft" type="button">새 세션 시작</button>
-      </section>
     </div>
 
-    <template id="child-card-template">
-      <article class="child-card">
-        <button class="child-select-btn" type="button">
-          <div class="child-top">
-            <span class="child-avatar"></span>
-            <div>
-              <p class="child-name"></p>
-              <p class="child-score"></p>
-            </div>
-          </div>
-          <div class="child-stats"></div>
-        </button>
-      </article>
+    <div id="toast" class="toast hidden"></div>
+
+    <template id="child-item-template">
+      <button class="child-item" type="button">
+        <span class="avatar"></span>
+        <div>
+          <p class="name"></p>
+          <p class="meta"></p>
+        </div>
+      </button>
     </template>
 
+    <script src="data.js"></script>
+    <script src="storage.js"></script>
+    <script src="game.js"></script>
+    <script src="ui.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
